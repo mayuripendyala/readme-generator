@@ -1,28 +1,23 @@
 // TODO: Include packages needed for this application
 const inquirer = require('inquirer');
 const fs = require('fs');
-const generateMarkdown = require('./Develop/utils/generateMarkdown');
+const generateMarkdown = require('./utils/generateMarkdown');
 // TODO: Create an array of questions for user input
 const questions = [
     {
         type: 'input',
         name: 'title',
         message: 'Please provide a project title. (Required)',
-        validate: input => {
-             if(input) {
-                 return true;
-             }else  {
-                 console.log("Please provide a project title.");
-                 return false;
-             }
-        }
+        validate: input =>{
+            return validateInput(input,'Please provide a project title');
+         }
     },
     {
         type: 'input',
         name: 'github',
         message: 'Please enter your Github username. (Required)',
-        validate: input => {
-            validateInput(input,message);
+        validate: input =>{
+           return validateInput(input,'Please enter your Github username.');
         }
     },
     {
@@ -30,7 +25,7 @@ const questions = [
         name: 'repo',
         message: 'Please enter the name of the repo. (Required)',
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'Please enter the name of the repo.');
         }
     },
     {
@@ -38,15 +33,15 @@ const questions = [
         name: 'description',
         message: 'Provide a description of your application. (Required)',
         validate: input =>{
-            validateInput(input,message);
-        }
+            return validateInput(input,'Provide a description of your application.');
+         }
     },
     {
         type: 'input',
         name: 'usage',
         message: 'Please provide information for using your application. (Required)',
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'Please provide information for using your application.');
         }
     },
     {
@@ -106,7 +101,7 @@ const questions = [
                 }
         },
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'please provide a link to your deployed application.');
         }
     },
     {
@@ -122,7 +117,7 @@ const questions = [
             }
     },
         validate: input =>{
-            validateInput(input,message);
+            return validateInput(input,'Please list any required packages for installation of your application.');
         }
     },
     {
@@ -140,7 +135,7 @@ const questions = [
             }
         },
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'Please provide license information.');
         }
     },
     {
@@ -158,7 +153,7 @@ const questions = [
             }
         },
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'Please select the technologies that your application was built with.');
         }
     },
     {
@@ -174,7 +169,7 @@ const questions = [
             }
         },
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'Please enter your guidelines for contributing.');
         }
     },
     {
@@ -190,7 +185,7 @@ const questions = [
             }
         },
         validate: input =>{
-            validateInput(input,message);
+           return validateInput(input,'Please enter test information for your application.');
         }
     },
     {
@@ -206,13 +201,20 @@ const questions = [
             }
         },
         validate: input =>{
-            validateInput(input,message);
+            return validateInput(input,'Please provide an email address for others to reach you with questions.');
         }
     }
 ];
 
 // TODO: Create a function to write README file
-function writeToFile(fileName, data) {}
+function writeToFile(fileName, data) {
+    fs.write(`./dist/${fileName}`,data,err =>{
+        if(err) {
+            throw err;
+        }
+        console.log('README created!');
+    })
+}
 
 // TODO: Create a function to initialize app
 function init() {
