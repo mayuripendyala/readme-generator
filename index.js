@@ -1,7 +1,7 @@
 // TODO: Include packages needed for this application
 const inquirer = require('inquirer');
 const fs = require('fs');
-const generateMarkdown = require('./utils/generateMarkdown');
+const generateMarkdown = require('./utils/generateMarkdown.js');
 // TODO: Create an array of questions for user input
 const questions = [
     {
@@ -63,7 +63,7 @@ const questions = [
             },
             {
                 name: 'Built With',
-                checked: true
+                checked: false
             },
             {
                 name: 'License',
@@ -206,9 +206,126 @@ const questions = [
     }
 ];
 
+
+    //funtion to add screenshots recursively
+ function  addScreenshots(readmeData) {
+        if(!readmeData.screenshots) {
+            readmeData.screenshots =[];
+        }
+        console.log(`
+        
+        Add New Screenshot
+        
+        `);
+        return inquirer.prompt(screenShotQues)
+        .then(screenshotData => {
+            readmeData.screenshots.push(screenshotData);
+
+            if(screenshotData.confirmAddScreenshot) {
+                return addScreenshots(readmeData);
+            }
+            else {
+                return readmeData;
+            }
+        })
+   }
+
+   const screenShotQues = [
+       {
+           type: 'input',
+           name: 'screenshotLink',
+           message: 'Please provide a link for your screenshot. (Required)',
+           validate: input =>{
+            return validateInput(input,'Please provide a link for your screenshot.');
+            }
+       },
+       {
+           type: 'input',
+           name: 'screenshotAlt',
+           maessage: 'Please provide alt text for your screenshot. (Required)',
+           validate: input =>{
+            return validateInput(input,'Please provide alt text for your screenshot.');
+            }
+       },
+       {
+           type:'input',
+           name:'screenshotDesc',
+           message: 'Please provide a description of your screenshot. (Optional)'
+       },
+       {
+           type: 'confirm',
+           name: 'confirmAddScreenshot',
+           message: 'Would you like to add another screenshot?',
+           default: false
+       }
+   ]
+
+  function addCredits(readmeInfo) {
+
+        if(!readmeInfo.credits) {
+            readmeInfo.credits = [];
+        }
+        console.log(`
+        
+        Add New Credit
+
+        `);
+
+        return inquirer.prompt(creditQues)
+        .then(creditData =>{
+
+            readmeInfo.credits.push(creditData);
+
+            if(creditData.confrimAddCredit) {
+                return addCredit(readmeInfo);
+            }
+            else {
+                return readmeInfo;
+            }
+        })
+   };
+
+   const creditQues =[
+       {
+           type: 'input',
+           name: 'creditName',
+           message: 'Please give your credit a name. (Required)',
+           validate: input =>{
+            return validateInput(input,'Please give your credit a name.');
+            }
+
+       },
+       {
+           type: 'input',
+           name : 'creditLink',
+           message : 'Please provide a link for the credit. (Required)',
+           validate: input =>{
+            return validateInput(input,'Please provide a link for the credit.');
+            }
+       },
+       {
+           type: 'confirm',
+           name:'confirmAddCredit',
+           message: 'Would you like to add another credit?',
+           default: false
+       }
+   ]
+
+
+function validateInput(input, message){
+    if(input){
+        return true;
+    }
+    else {
+        console.log(message);
+        return false;
+    }
+
+}
+
 // TODO: Create a function to write README file
 function writeToFile(fileName, data) {
-    fs.write(`./dist/${fileName}`,data,err =>{
+    fs.writeFile(`./dist/${fileName}`,data,err =>{
         if(err) {
             throw err;
         }
@@ -223,35 +340,24 @@ function init() {
 
 // Function call to initialize app
 init()
-    .then(reponse =>{
-        if(reponse.contents.indexOf('Screenshots') > -1){
-            return addScreenshots(response);
-        }
-        else {
-            return response;
-        }
-    })
-    .then(response => {
-         if(response.contents.indexOf('Credits')> -1) {
-             return addCredits(response);
-         }
-         else {
-             return response;
-         }
-    })
-    .then(answers => generateMarkdown(answers))
-    .then(generateReadme => writeToFile('README.md', generatedReadme))
-    .catch(err => {
-        console.log(err);
-    });
-
-    function validateInput(input, message){
-        if(input){
-            return true;
-        }
-        else {
-            console.log(message);
-            return false;
-        }
-
+.then(response =>{
+    if(response.contents.indexOf('Screenshots') > -1){
+        return addScreenshots(response);
     }
+    else {
+        return response;
+    }
+})
+.then(response => {
+     if(response.contents.indexOf('Credits')> -1) {
+         return addCredits(response);
+     }
+     else {
+         return response;
+     }
+})
+.then(answers => generateMarkdown(answers))
+.then(generateReadme => writeToFile('README.md', generateReadme))
+.catch(err => {
+    console.log(err);
+});
